@@ -8,13 +8,19 @@ import random
 MUTATE_MAX_STEP_DELTA = 5
 MUTATE_MAX_GUIDANCE_DELTA = 0.5
 
+genome_id = 0
+
 class Genome:
-    def __init__(self, prompt, seed, steps, guidance_scale, randomize = True):
+    def __init__(self, prompt, seed, steps, guidance_scale, randomize = True, parent_id = None):
         self.prompt = prompt
         self.seed = seed
         self.num_inference_steps = steps
         self.guidance_scale = guidance_scale
         if randomize: self.mutate()
+        
+        self.id = genome_id
+        genome_id += 1
+        if parent_id: self.parent_id = parent_id
 
     def set_seed(self, new_seed):
         self.seed = new_seed 
@@ -26,9 +32,12 @@ class Genome:
         self.guidance_scale += delta
 
     def __str__(self):
-        return f"Genome(prompt=\"{self.prompt}\",seed={self.seed},steps={self.num_inference_steps},guidance={self.guidance_scale})"
+        return f"Genome(id={self.id},parent_id={self.parent_id},prompt=\"{self.prompt}\",seed={self.seed},steps={self.num_inference_steps},guidance={self.guidance_scale})"
 
     def mutate(self):
         self.set_seed(random.getrandbits(64))
         self.change_inference_steps(random.randint(-MUTATE_MAX_STEP_DELTA, MUTATE_MAX_STEP_DELTA))
         self.change_guidance_scale(random.uniform(-MUTATE_MAX_GUIDANCE_DELTA, MUTATE_MAX_GUIDANCE_DELTA))
+
+    def mutated_child(self):
+        return Genome(self.prompt, self.seed, self.num_inference_steps, self.guidance_scale, True, self.id)

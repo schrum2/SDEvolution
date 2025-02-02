@@ -1,5 +1,6 @@
 from image_grid import ImageGridViewer
 import tkinter as tk
+import random
 from genome import Genome
 
 # Modified generation loop with GUI
@@ -51,39 +52,27 @@ pipe.scheduler = EulerDiscreteScheduler.from_config(
 #prompt="a photo of an astronaut riding a horse on mars, blazing fast, wind and sand moving back"
 #prompt="a photo of a chicken in space"
 
+
+prompt = input("Image prompt: ")
+population_size = 9
+steps = 20
+guidance_scale = 7.5
+
 running = True
 while running:
-    prompt = input("Image prompt (q to quit): ")
-    if prompt == "q": quit()
-        
-    #start_seed = input("Start seed (q to quit): ")
-    #if start_seed == "q": quit()
-    #end_seed = input("End seed (q to quit): ")
-    #if end_seed == "q": quit()
+    genomes = [Genome(prompt, seed, steps, guidance_scale) for seed in range(population_size)]
 
-    population_size = 9
+    selected_images = generate_and_display_images(
+        pipe=pipe,
+        genomes=genomes
+    )
 
-    steps = 20 # input("Num steps (q to quit): ")
-    if steps == "q": quit()
+    for (i,_) in selected_images:
+        print(genomes[i])
 
-    guidance_scale = 7.5 # input("Guidance scale (q to quit): ")
-    if guidance_scale == "q": quit()
-
-    try:
-        #start_seed = int(start_seed)
-        #end_seed = int(end_seed)
-        steps = int(steps)
-        guidance_scale=float(guidance_scale)
-
-        genomes = [Genome(prompt, seed, steps, guidance_scale) for seed in range(population_size)]
-
-        selected_images = generate_and_display_images(
-            pipe=pipe,
-            genomes=genomes
-        )
-
-        for (i,_) in selected_images:
-            print(genomes[i])
-
-    except ValueError:
-        print("Seeds and steps must be non-negative integers")
+    # Pure elitism
+    keepers = [genomes[i] for (i,_) in selected_images]
+    genomes = keepers
+    # Fill remaining slots with mutated children
+    for i in range(len(keepers), population_size):
+        genomes.append(random.choice(keepers).mutated_child())
