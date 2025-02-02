@@ -2,7 +2,7 @@ from image_grid import ImageGridViewer
 import tkinter as tk
 
 # Modified generation loop with GUI
-def generate_and_display_images(pipe, prompt, start_seed, end_seed, steps):
+def generate_and_display_images(pipe, prompt, start_seed, end_seed, steps, guidance_scale):
     root = tk.Tk()
     viewer = ImageGridViewer(root)
     
@@ -11,6 +11,7 @@ def generate_and_display_images(pipe, prompt, start_seed, end_seed, steps):
         image = pipe(
             prompt,
             generator=generator,
+            guidance_scale=guidance_scale,
             num_inference_steps=steps
         ).images[0]
         
@@ -32,13 +33,10 @@ from diffusers import StableDiffusionPipeline
 #model="runwayml/stable-diffusion-v1-5"
 model="stablediffusionapi/deliberate-v2"
 
-guidance_scale=7.5
-
-print(f"Using {model} with guidance scale {guidance_scale}")
+print(f"Using {model}")
 
 pipe = StableDiffusionPipeline.from_pretrained(
     model,
-    guidance_scale=guidance_scale,
     torch_dtype=torch.float16
 )
 pipe.to("cuda")
@@ -64,17 +62,23 @@ while running:
 
     steps = 20 # input("Num steps (q to quit): ")
     if steps == "q": quit()
+
+    guidance_scale = input("Guidance scale (q to quit): ") # 7.5
+    if guidance_scale == "q": quit()
+
     try:
         start_seed = int(start_seed)
         end_seed = int(end_seed)
         steps = int(steps)
+        guidance_scale=float(guidance_scale)
 
         selected_images = generate_and_display_images(
             pipe=pipe,
             prompt=prompt,
             start_seed=start_seed,
             end_seed=end_seed,
-            steps=steps
+            steps=steps,
+            guidance_scale=guidance_scale
         )
 
         print(selected_images)

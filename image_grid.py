@@ -23,7 +23,7 @@ class ImageGridViewer:
         
     def get_selected_images(self):
         """Returns list of selected PIL Image objects."""
-        return [self.images[i] for i in self.selected_images]
+        return [(i,self.images[i]) for i in self.selected_images]
     
     def _update_grid(self):
         # Clear existing buttons
