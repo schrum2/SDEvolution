@@ -1,0 +1,6 @@
+numpy
+diffusers
+transformers
+scipy
+ftfy
+accelerate
