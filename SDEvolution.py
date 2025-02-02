@@ -75,7 +75,7 @@ while running:
         steps = int(steps)
         guidance_scale=float(guidance_scale)
 
-        genomes = [Genome(seed, prompt, steps, guidance_scale) for seed in range(population_size)]
+        genomes = [Genome(prompt, seed, steps, guidance_scale) for seed in range(population_size)]
 
         selected_images = generate_and_display_images(
             pipe=pipe,
