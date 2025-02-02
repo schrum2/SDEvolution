@@ -18,9 +18,10 @@ class Genome:
         self.guidance_scale = guidance_scale
         if randomize: self.mutate()
         
+        global genome_id
         self.id = genome_id
         genome_id += 1
-        if parent_id: self.parent_id = parent_id
+        self.parent_id = parent_id
 
     def set_seed(self, new_seed):
         self.seed = new_seed 
