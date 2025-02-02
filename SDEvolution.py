@@ -1,20 +1,21 @@
 from image_grid import ImageGridViewer
 import tkinter as tk
+from genome import Genome
 
 # Modified generation loop with GUI
-def generate_and_display_images(pipe, prompt, start_seed, end_seed, steps, guidance_scale):
+def generate_and_display_images(pipe, genomes):
     root = tk.Tk()
     viewer = ImageGridViewer(root)
     
-    for seed in range(start_seed, end_seed + 1):
-        generator = torch.Generator("cuda").manual_seed(seed)
+    for g in genomes:
+        generator = torch.Generator("cuda").manual_seed(g.seed)
         image = pipe(
-            prompt,
+            g.prompt,
             generator=generator,
-            guidance_scale=guidance_scale,
-            num_inference_steps=steps
+            guidance_scale=g.guidance_scale,
+            num_inference_steps=g.num_inference_steps
         ).images[0]
-        
+
         # Add image to viewer
         viewer.add_image(image)
         
@@ -63,7 +64,7 @@ while running:
     steps = 20 # input("Num steps (q to quit): ")
     if steps == "q": quit()
 
-    guidance_scale = input("Guidance scale (q to quit): ") # 7.5
+    guidance_scale = 7.5 # input("Guidance scale (q to quit): ")
     if guidance_scale == "q": quit()
 
     try:
@@ -72,13 +73,11 @@ while running:
         steps = int(steps)
         guidance_scale=float(guidance_scale)
 
+        genomes = [Genome(seed, prompt, steps, guidance_scale) for seed in range(start_seed, end_seed + 1)]
+
         selected_images = generate_and_display_images(
             pipe=pipe,
-            prompt=prompt,
-            start_seed=start_seed,
-            end_seed=end_seed,
-            steps=steps,
-            guidance_scale=guidance_scale
+            genomes=genomes
         )
 
         print(selected_images)
