@@ -56,10 +56,12 @@ while running:
     prompt = input("Image prompt (q to quit): ")
     if prompt == "q": quit()
         
-    start_seed = input("Start seed (q to quit): ")
-    if start_seed == "q": quit()
-    end_seed = input("End seed (q to quit): ")
-    if end_seed == "q": quit()
+    #start_seed = input("Start seed (q to quit): ")
+    #if start_seed == "q": quit()
+    #end_seed = input("End seed (q to quit): ")
+    #if end_seed == "q": quit()
+
+    population_size = 9
 
     steps = 20 # input("Num steps (q to quit): ")
     if steps == "q": quit()
@@ -68,19 +70,20 @@ while running:
     if guidance_scale == "q": quit()
 
     try:
-        start_seed = int(start_seed)
-        end_seed = int(end_seed)
+        #start_seed = int(start_seed)
+        #end_seed = int(end_seed)
         steps = int(steps)
         guidance_scale=float(guidance_scale)
 
-        genomes = [Genome(seed, prompt, steps, guidance_scale) for seed in range(start_seed, end_seed + 1)]
+        genomes = [Genome(seed, prompt, steps, guidance_scale) for seed in range(population_size)]
 
         selected_images = generate_and_display_images(
             pipe=pipe,
             genomes=genomes
         )
 
-        print(selected_images)
+        for (i,_) in selected_images:
+            print(genomes[i])
 
     except ValueError:
         print("Seeds and steps must be non-negative integers")

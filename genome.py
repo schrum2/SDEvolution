@@ -18,3 +18,6 @@ class Genome:
 
     def change_guidance_scale(self, delta):
         self.guidance_scale += delta
+
+    def __str__(self):
+        return f"Genome(prompt=\"{self.prompt}\",seed={self.seed},steps={self.num_inference_steps},guidance={self.guidance_scale})"
