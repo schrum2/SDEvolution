@@ -2,11 +2,38 @@ from image_grid import ImageGridViewer
 import tkinter as tk
 import random
 from genome import Genome
+import torch
+from diffusers import StableDiffusionPipeline
 
-# Modified generation loop with GUI
-def generate_and_display_images(pipe, genomes):
-    root = tk.Tk()
-    viewer = ImageGridViewer(root)
+def next_generation(selected_images):
+    global genomes
+    global generation
+
+    print(f"Generation {generation}---------------------------")
+    for (i,image) in selected_images:
+        print(f"Selected for survival: {genomes[i]}")
+        genomes[i].set_image(image)
+
+    # Pure elitism
+    keepers = [genomes[i] for (i,_) in selected_images]
+
+    children = []
+    # Fill remaining slots with mutated children
+    for i in range(len(keepers), population_size):
+        children.append(random.choice(keepers).mutated_child())
+
+    # combined population
+    genomes = keepers + children
+    generation += 1
+
+    fill_with_images_from_genomes(genomes)
+
+def fill_with_images_from_genomes(genomes):
+    global pipe
+    global root
+    global viewer
+
+    viewer.clear_images()
     
     for g in genomes:
         generator = torch.Generator("cuda").manual_seed(g.seed)
@@ -32,12 +59,7 @@ def generate_and_display_images(pipe, genomes):
     
     # Start the GUI event loop
     root.mainloop()
-    
-    # After window is closed, return selected images
-    return viewer.get_selected_images()
-
-import torch
-from diffusers import StableDiffusionPipeline
+    print("Make selections and click \"Evolve\"")
 
 #model="runwayml/stable-diffusion-v1-5"
 model="stablediffusionapi/deliberate-v2"
@@ -72,25 +94,7 @@ guidance_scale = 7.5
 genomes = [Genome(prompt, seed, steps, guidance_scale) for seed in range(population_size)]
 
 generation = 0
-running = True
-while running:
-    print(f"Generation {generation}---------------------------")
-    selected_images = generate_and_display_images(
-        pipe=pipe,
-        genomes=genomes
-    )
 
-    for (i,image) in selected_images:
-        print(f"Selected for survival: {genomes[i]}")
-        genomes[i].set_image(image)
-
-    # Pure elitism
-    keepers = [genomes[i] for (i,_) in selected_images]
-
-    children = []
-    # Fill remaining slots with mutated children
-    for i in range(len(keepers), population_size):
-        children.append(random.choice(keepers).mutated_child())
-
-    # combined population
-    genomes = keepers + children
+root = tk.Tk()
+viewer = ImageGridViewer(root, callback_fn=next_generation)
+fill_with_images_from_genomes(genomes)

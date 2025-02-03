@@ -8,14 +8,43 @@ This class was made by Claude: https://claude.ai/
 """
 
 class ImageGridViewer:
-    def __init__(self, root):
+    def __init__(self, root, callback_fn=None):
         self.root = root
-        self.root.title("Generated Images Grid")
+        self.root.title("Generated Images")
         self.images = []  # Stores PIL Image objects
         self.photo_images = []  # Stores PhotoImage objects (needed to prevent garbage collection)
         self.selected_images = set()  # Tracks which images are selected
         self.buttons = []  # Stores the button widgets
+        self.callback_fn = callback_fn        
+
+        # Create frame for images
+        self.image_frame = tk.Frame(self.root)
+        self.image_frame.pack(pady=10)
         
+        # Create frame for control buttons
+        self.control_frame = tk.Frame(self.root)
+        self.control_frame.pack(pady=5)
+        
+        # Add Done button
+        self.done_button = tk.Button(
+            self.control_frame,
+            text="Evolve",
+            command=self._handle_done,
+            width=20,
+            height=2
+        )
+        self.done_button.pack(side=tk.LEFT, padx=5)
+        
+        # Add Close button
+        self.close_button = tk.Button(
+            self.control_frame,
+            text="Close",
+            command=self.root.destroy,
+            width=20,
+            height=2
+        )
+        self.close_button.pack(side=tk.LEFT, padx=5)
+
     def add_image(self, pil_image):
         """Add a new image to the grid. Expects a PIL Image object."""
         self.images.append(pil_image)
@@ -40,7 +69,7 @@ class ImageGridViewer:
         grid_size = ceil(sqrt(n_images))  # Make a square-ish grid
         
         # Resize images for display
-        thumbnail_size = (150, 150)
+        thumbnail_size = (256, 256)
         
         for idx, img in enumerate(self.images):
             # Create a copy and resize for thumbnail
@@ -53,7 +82,7 @@ class ImageGridViewer:
             
             # Create button
             btn = tk.Button(
-                self.root,
+                self.image_frame,
                 image=photo,
                 relief='solid',
                 borderwidth=2
@@ -82,3 +111,9 @@ class ImageGridViewer:
         else:
             self.selected_images.add(idx)
             button.configure(bg='blue')  # Highlight selected
+
+    def _handle_done(self):
+        """Called when Evolve button is clicked"""
+        if self.callback_fn:
+            selected = self.get_selected_images()
+            self.callback_fn(selected)
