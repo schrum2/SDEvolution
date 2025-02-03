@@ -5,8 +5,8 @@ to Stable Diffusion. Can be mutated to change the configuration.
 
 import random
 
-MUTATE_MAX_STEP_DELTA = 5
-MUTATE_MAX_GUIDANCE_DELTA = 0.5
+MUTATE_MAX_STEP_DELTA = 10
+MUTATE_MAX_GUIDANCE_DELTA = 1.0
 
 genome_id = 0
 
