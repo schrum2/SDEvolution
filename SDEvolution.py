@@ -46,6 +46,9 @@ pipe = StableDiffusionPipeline.from_pretrained(
     model,
     torch_dtype=torch.float16
 )
+# This line disables the safety checker. There is a risk of NSFW content with this line present.
+pipe.safety_checker = lambda images, clip_input: (images, False)
+
 pipe.to("cuda")
 
 # Default is PNDMScheduler
