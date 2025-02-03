@@ -10,12 +10,17 @@ def generate_and_display_images(pipe, genomes):
     
     for g in genomes:
         generator = torch.Generator("cuda").manual_seed(g.seed)
-        image = pipe(
-            g.prompt,
-            generator=generator,
-            guidance_scale=g.guidance_scale,
-            num_inference_steps=g.num_inference_steps
-        ).images[0]
+        if g.image:
+            # used saved image from previous generation
+            image = g.image
+        else:
+            # generate fresh new image
+            image = pipe(
+                g.prompt,
+                generator=generator,
+                guidance_scale=g.guidance_scale,
+                num_inference_steps=g.num_inference_steps
+            ).images[0]
 
         # Add image to viewer
         viewer.add_image(image)
@@ -68,8 +73,9 @@ while running:
         genomes=genomes
     )
 
-    for (i,_) in selected_images:
+    for (i,image) in selected_images:
         print(genomes[i])
+        genomes[i].set_image(image)
 
     # Pure elitism
     keepers = [genomes[i] for (i,_) in selected_images]
