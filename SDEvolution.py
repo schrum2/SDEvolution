@@ -12,9 +12,11 @@ def generate_and_display_images(pipe, genomes):
         generator = torch.Generator("cuda").manual_seed(g.seed)
         if g.image:
             # used saved image from previous generation
+            print(f"Use cached image for {g}")
             image = g.image
         else:
             # generate fresh new image
+            print(f"Generate new image for {g}")
             image = pipe(
                 g.prompt,
                 generator=generator,
@@ -69,15 +71,17 @@ guidance_scale = 7.5
 
 genomes = [Genome(prompt, seed, steps, guidance_scale) for seed in range(population_size)]
 
+generation = 0
 running = True
 while running:
+    print(f"Generation {generation}---------------------------")
     selected_images = generate_and_display_images(
         pipe=pipe,
         genomes=genomes
     )
 
     for (i,image) in selected_images:
-        print(genomes[i])
+        print(f"Selected for survival: {genomes[i]}")
         genomes[i].set_image(image)
 
     # Pure elitism
