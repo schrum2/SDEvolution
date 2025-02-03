@@ -44,13 +44,13 @@ model="stablediffusionapi/deliberate-v2"
 
 print(f"Using {model}")
 
+# I disabled the safety checker. There is a risk of NSFW content.
 pipe = StableDiffusionPipeline.from_pretrained(
     model,
-    torch_dtype=torch.float16
+    torch_dtype=torch.float16,
+    safety_checker = None,
+    requires_safety_checker = False
 )
-# This line disables the safety checker. There is a risk of NSFW content with this line present.
-pipe.safety_checker = lambda images, clip_input: (images, False)
-
 pipe.to("cuda")
 
 # Default is PNDMScheduler
@@ -86,7 +86,11 @@ while running:
 
     # Pure elitism
     keepers = [genomes[i] for (i,_) in selected_images]
-    genomes = keepers
+
+    children = []
     # Fill remaining slots with mutated children
     for i in range(len(keepers), population_size):
-        genomes.append(random.choice(keepers).mutated_child())
+        children.append(random.choice(keepers).mutated_child())
+
+    # combined population
+    genomes = keepers + children
