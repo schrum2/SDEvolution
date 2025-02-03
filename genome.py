@@ -54,4 +54,6 @@ class Genome:
             self.change_guidance_scale(random.uniform(-MUTATE_MAX_GUIDANCE_DELTA, MUTATE_MAX_GUIDANCE_DELTA))
 
     def mutated_child(self):
-        return Genome(self.prompt, self.seed, self.num_inference_steps, self.guidance_scale, True, self.id)
+        child = Genome(self.prompt, self.seed, self.num_inference_steps, self.guidance_scale, False, self.id)
+        child.mutate()
+        return child
