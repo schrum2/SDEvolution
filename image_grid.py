@@ -45,6 +45,12 @@ class ImageGridViewer:
         )
         self.close_button.pack(side=tk.LEFT, padx=5)
 
+    def clear_images(self):
+        """Clears all images from the grid and resets selections."""
+        self.images.clear()
+        self.selected_images.clear()
+        self._update_grid()
+
     def add_image(self, pil_image):
         """Add a new image to the grid. Expects a PIL Image object."""
         self.images.append(pil_image)
