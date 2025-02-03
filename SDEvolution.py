@@ -51,17 +51,18 @@ pipe.scheduler = EulerDiscreteScheduler.from_config(
 
 #prompt="a photo of an astronaut riding a horse on mars, blazing fast, wind and sand moving back"
 #prompt="a photo of a chicken in space"
-
+#prompt="fighting cats"
+#propmt="chickens riding horses"
 
 prompt = input("Image prompt: ")
 population_size = 9
 steps = 20
 guidance_scale = 7.5
 
+genomes = [Genome(prompt, seed, steps, guidance_scale) for seed in range(population_size)]
+
 running = True
 while running:
-    genomes = [Genome(prompt, seed, steps, guidance_scale) for seed in range(population_size)]
-
     selected_images = generate_and_display_images(
         pipe=pipe,
         genomes=genomes
