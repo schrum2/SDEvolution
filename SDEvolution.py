@@ -57,9 +57,9 @@ def fill_with_images_from_genomes(genomes):
         # Update the GUI to show new image
         root.update()
     
+    print("Make selections and click \"Evolve\"")
     # Start the GUI event loop
     root.mainloop()
-    print("Make selections and click \"Evolve\"")
 
 #model="runwayml/stable-diffusion-v1-5"
 model="stablediffusionapi/deliberate-v2"
