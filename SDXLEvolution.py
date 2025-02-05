@@ -51,7 +51,7 @@ def fill_with_images_from_genomes(genomes):
             print(f"Generate new image for {g}")
             pipe.to("cuda")
             with torch.no_grad():
-                base_latents = base_pipe(
+                base_latents = pipe(
                     prompt = prompt,
                     generator=generator,
                     guidance_scale=g.guidance_scale,
