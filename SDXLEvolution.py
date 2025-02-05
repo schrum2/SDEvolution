@@ -64,12 +64,13 @@ def fill_with_images_from_genomes(genomes):
             pipe.to("cpu")
             torch.cuda.empty_cache()
 
+            refiner_pipe.to("cuda")
             with torch.no_grad():
                 image = refiner_pipe(
-                prompt = prompt,
-                negative_prompt = neg_prompt,
-                image = [base_latents]
-            ).images[0]
+                    prompt = prompt,
+                    negative_prompt = neg_prompt,
+                    image = [base_latents]
+                ).images[0]
 
             # Empty VRAM
             refiner_pipe.to("cpu")
