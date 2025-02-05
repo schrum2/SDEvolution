@@ -3,6 +3,7 @@ torch
 torchvision
 torchaudio
 
+--extra-index-url https://pypi.org/simple
 numpy
 diffusers
 transformers
