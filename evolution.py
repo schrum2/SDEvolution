@@ -113,12 +113,9 @@ class SDXLEvolver(Evolver):
         model="stabilityai/stable-diffusion-xl-base-1.0"
         print(f"Using {model}")
 
-        # I disabled the safety checker. There is a risk of NSFW content.
         self.pipe = StableDiffusionXLPipeline.from_pretrained(
             model,
-            torch_dtype=torch.float16,
-            safety_checker = None,
-            requires_safety_checker = False
+            torch_dtype=torch.float16
         )
 
         self.refiner_model = "stabilityai/stable-diffusion-xl-refiner-1.0"
