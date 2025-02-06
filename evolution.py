@@ -100,3 +100,71 @@ class SDEvolver(Evolver):
         ).images[0]
 
         return image
+
+from diffusers import (
+    StableDiffusionXLPipeline,
+    StableDiffusionXLImg2ImgPipeline
+)
+
+class SDXLEvolver(Evolver):
+    def __init__(self):
+        Evolver.__init__(self)
+
+        model="stabilityai/stable-diffusion-xl-base-1.0"
+        print(f"Using {model}")
+
+        # I disabled the safety checker. There is a risk of NSFW content.
+        self.pipe = StableDiffusionXLPipeline.from_pretrained(
+            model,
+            torch_dtype=torch.float16,
+            safety_checker = None,
+            requires_safety_checker = False
+        )
+
+        self.refiner_model = "stabilityai/stable-diffusion-xl-refiner-1.0"
+        self.refiner_pipe = StableDiffusionXLImg2ImgPipeline.from_pretrained(
+            refiner_model,
+            torch_dtype = torch.float16
+        )
+
+        self.pipe.scheduler = EulerDiscreteScheduler.from_config(
+            self.pipe.scheduler.config
+        )
+        self.refiner_pipe.scheduler = EulerDiscreteScheduler.from_config(
+            self.refiner_pipe.scheduler.config
+        )
+
+    def generate_image(self, g):
+        neg_prompt = "watermark, blur, low quality, worst quality"
+
+        # generate fresh new image
+        print(f"Generate new image for {g}")
+        generator = torch.Generator("cuda").manual_seed(g.seed)
+        self.pipe.to("cuda")
+        with torch.no_grad():
+            base_latents = self.pipe(
+                prompt = g.prompt,
+                generator=generator,
+                guidance_scale=g.guidance_scale,
+                num_inference_steps=g.num_inference_steps,
+                negative_prompt = neg_prompt,
+                output_type = "latent"
+            ).images[0]
+
+        # Empty VRAM
+        self.pipe.to("cpu")
+        torch.cuda.empty_cache()
+
+        self.refiner_pipe.to("cuda")
+        with torch.no_grad():
+            image = self.refiner_pipe(
+                prompt = g.prompt,
+                negative_prompt = neg_prompt,
+                image = [base_latents]
+            ).images[0]
+
+        # Empty VRAM
+        self.refiner_pipe.to("cpu")
+        torch.cuda.empty_cache()
+
+        return image
