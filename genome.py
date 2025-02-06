@@ -6,11 +6,12 @@ to Stable Diffusion. Can be mutated to change the configuration.
 import random
 
 MUTATE_MAX_STEP_DELTA = 10
+MUTATE_MAX_REFINE_STEP_DELTA = 10
 MUTATE_MAX_GUIDANCE_DELTA = 1.0
 
 genome_id = 0
 
-class Genome:
+class SDGenome:
     def __init__(self, prompt, seed, steps, guidance_scale, randomize = True, parent_id = None):
         self.prompt = prompt
         self.seed = seed
@@ -42,7 +43,7 @@ class Genome:
         self.guidance_scale += delta
 
     def __str__(self):
-        return f"Genome(id={self.id},parent_id={self.parent_id},prompt=\"{self.prompt}\",seed={self.seed},steps={self.num_inference_steps},guidance={self.guidance_scale})"
+        return f"SDGenome(id={self.id},parent_id={self.parent_id},prompt=\"{self.prompt}\",seed={self.seed},steps={self.num_inference_steps},guidance={self.guidance_scale})"
 
     def mutate(self):
         if bool(random.getrandbits(1)):
@@ -54,6 +55,35 @@ class Genome:
             self.change_guidance_scale(random.uniform(-MUTATE_MAX_GUIDANCE_DELTA, MUTATE_MAX_GUIDANCE_DELTA))
 
     def mutated_child(self):
-        child = Genome(self.prompt, self.seed, self.num_inference_steps, self.guidance_scale, False, self.id)
+        child = SDGenome(self.prompt, self.seed, self.num_inference_steps, self.guidance_scale, False, self.id)
+        child.mutate()
+        return child
+
+class SDXLGenome(SDGenome):
+    def __init__(self, prompt, seed, steps, guidance_scale, refine_steps, randomize = True, parent_id = None):
+        SDGenome.__init__(self, prompt, seed, steps, guidance_scale, randomize, parent_id)
+        self.refine_steps = refine_steps
+
+        if randomize: 
+            self.change_refine_steps(random.randint(-MUTATE_MAX_REFINE_STEP_DELTA, MUTATE_MAX_REFINE_STEP_DELTA))
+
+    def change_refine_steps(self, delta):
+        self.refine_steps += delta
+
+    def __str__(self):
+        return f"SDXLGenome(id={self.id},parent_id={self.parent_id},prompt=\"{self.prompt}\",seed={self.seed},steps={self.num_inference_steps},guidance={self.guidance_scale},refine_steps={self.refine_steps})"
+
+    def mutate(self):
+        if bool(random.getrandbits(1)):
+            # will be a big change
+            self.set_seed(random.getrandbits(64))
+        else:
+            # Should be a small change
+            self.change_inference_steps(random.randint(-MUTATE_MAX_STEP_DELTA, MUTATE_MAX_STEP_DELTA))
+            self.change_guidance_scale(random.uniform(-MUTATE_MAX_GUIDANCE_DELTA, MUTATE_MAX_GUIDANCE_DELTA))
+            self.change_refine_steps(random.randint(-MUTATE_MAX_REFINE_STEP_DELTA, MUTATE_MAX_REFINE_STEP_DELTA))
+
+    def mutated_child(self):
+        child = SDXLGenome(self.prompt, self.seed, self.num_inference_steps, self.guidance_scale, self.refine_steps, False, self.id)
         child.mutate()
         return child

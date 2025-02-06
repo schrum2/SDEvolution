@@ -1,7 +1,7 @@
 from image_grid import ImageGridViewer
 import tkinter as tk
 import random
-from genome import Genome
+from genome import (SDGenome, SDXLGenome)
 import torch
 from diffusers import EulerDiscreteScheduler
 
@@ -13,7 +13,7 @@ class Evolver:
 
     def start_evolution(self):
         self.prompt = input("Image prompt: ")
-        self.genomes = [Genome(self.prompt, seed, self.steps, self.guidance_scale) for seed in range(self.population_size)]
+        self.initialize_population()
 
         self.generation = 0
 
@@ -88,6 +88,9 @@ class SDEvolver(Evolver):
             self.pipe.scheduler.config
         )
 
+    def initialize_population(self):
+        self.genomes = [SDGenome(self.prompt, seed, self.steps, self.guidance_scale) for seed in range(self.population_size)]
+
     def generate_image(self, g):
         # generate fresh new image
         print(f"Generate new image for {g}")
@@ -110,6 +113,8 @@ class SDXLEvolver(Evolver):
     def __init__(self):
         Evolver.__init__(self)
 
+        self.refine_steps = 20
+ 
         model="stabilityai/stable-diffusion-xl-base-1.0"
         print(f"Using {model}")
 
@@ -130,6 +135,9 @@ class SDXLEvolver(Evolver):
         self.refiner_pipe.scheduler = EulerDiscreteScheduler.from_config(
             self.refiner_pipe.scheduler.config
         )
+
+    def initialize_population(self):
+        self.genomes = [SDXLGenome(self.prompt, seed, self.steps, self.guidance_scale, self.refine_steps) for seed in range(self.population_size)]
 
     def generate_image(self, g):
         neg_prompt = "watermark, blur, low quality, worst quality"
