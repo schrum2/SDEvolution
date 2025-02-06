@@ -120,7 +120,7 @@ class SDXLEvolver(Evolver):
 
         self.refiner_model = "stabilityai/stable-diffusion-xl-refiner-1.0"
         self.refiner_pipe = StableDiffusionXLImg2ImgPipeline.from_pretrained(
-            refiner_model,
+            self.refiner_model,
             torch_dtype = torch.float16
         )
 
