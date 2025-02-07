@@ -10,11 +10,16 @@ class Evolver:
         self.population_size = 9
         self.steps = 20
         self.guidance_scale = 7.5
+        self.latents_first = False
+        self.has_neg_prompt = False
 
     def start_evolution(self):
         self.prompt = input("Image prompt: ")
-        self.initialize_population()
 
+        if self.has_neg_prompt:
+            self.neg_prompt = input("Negative prompt: ")
+
+        self.initialize_population()
         self.generation = 0
 
         self.root = tk.Tk()
@@ -44,6 +49,19 @@ class Evolver:
     def fill_with_images_from_genomes(self,genomes):
         self.viewer.clear_images()
     
+        # SDXL generates new latents first before refining generates images
+        if self.latents_first:
+            # Do process all genomes while first model is in VRAM
+            self.pipe.to("cuda")
+            for g in self.genomes:
+                g.base_latents = self.generate_latents(g)
+                    
+            # Empty VRAM so that all latents can be refined next
+            self.pipe.to("cpu")
+            torch.cuda.empty_cache()
+            # Put refiner model in VRAM
+            self.refiner_pipe.to("cuda")
+
         for g in self.genomes:
             
             if g.image:
@@ -58,6 +76,11 @@ class Evolver:
         
             # Update the GUI to show new image
             self.root.update()
+
+        if self.latents_first:
+            # Take refiner out of VRAM so base model can do in next generation
+            self.refiner_pipe.to("cpu")
+            torch.cuda.empty_cache()
     
         print("Make selections and click \"Evolve\"")
         # Start the GUI event loop
@@ -114,6 +137,8 @@ class SDXLEvolver(Evolver):
         Evolver.__init__(self)
 
         self.refine_steps = 20
+        self.latents_first = True
+        self.has_neg_prompt = True
  
         model="stabilityai/stable-diffusion-xl-base-1.0"
         print(f"Using {model}")
@@ -137,39 +162,35 @@ class SDXLEvolver(Evolver):
         )
 
     def initialize_population(self):
-        self.genomes = [SDXLGenome(self.prompt, seed, self.steps, self.guidance_scale, self.refine_steps) for seed in range(self.population_size)]
+        self.genomes = [SDXLGenome(self.prompt, seed, self.steps, self.guidance_scale, self.refine_steps, self.neg_prompt) for seed in range(self.population_size)]
 
-    def generate_image(self, g):
-        neg_prompt = "watermark, blur, low quality, worst quality"
-
-        # generate fresh new image
-        print(f"Generate new image for {g}")
+    def generate_latents(self,g):
+        # generate latents first
+        print(f"Generate base latents for {g}")
         generator = torch.Generator("cuda").manual_seed(g.seed)
-        self.pipe.to("cuda")
         with torch.no_grad():
             base_latents = self.pipe(
                 prompt = g.prompt,
                 generator=generator,
                 guidance_scale=g.guidance_scale,
                 num_inference_steps=g.num_inference_steps,
-                negative_prompt = neg_prompt,
+                negative_prompt = g.neg_prompt,
                 output_type = "latent"
             ).images[0]
 
-        # Empty VRAM
-        self.pipe.to("cpu")
-        torch.cuda.empty_cache()
+        return base_latents
 
-        self.refiner_pipe.to("cuda")
+    def generate_image(self, g):
+        
+        print(f"Generate new image for {g}")
+        
+        # Can the refiner have its own generator from a seed?
         with torch.no_grad():
             image = self.refiner_pipe(
                 prompt = g.prompt,
-                negative_prompt = neg_prompt,
-                image = [base_latents]
+                negative_prompt = g.neg_prompt,
+                num_inference_steps=g.refine_steps,
+                image = [g.base_latents]
             ).images[0]
-
-        # Empty VRAM
-        self.refiner_pipe.to("cpu")
-        torch.cuda.empty_cache()
 
         return image
