@@ -39,9 +39,11 @@ class SDGenome:
 
     def change_inference_steps(self, delta):
         self.num_inference_steps += delta
+        self.num_inference_steps = max(1, self.num_inference_steps) # do not go below 1 step
 
     def change_guidance_scale(self, delta):
         self.guidance_scale += delta
+        self.guidance_scale = max(1.0, self.guidance_scale) # Do not go below 1.0
 
     def __str__(self):
         return f"SDGenome(id={self.id},parent_id={self.parent_id},prompt=\"{self.prompt}\",neg_prompt=\"{self.neg_prompt}\",seed={self.seed},steps={self.num_inference_steps},guidance={self.guidance_scale})"
@@ -71,6 +73,7 @@ class SDXLGenome(SDGenome):
 
     def change_refine_steps(self, delta):
         self.refine_steps += delta
+        self.refine_steps = max(1, self.refine_steps) # Do not go below 1 step
 
     def __str__(self):
         return f"SDXLGenome(id={self.id},parent_id={self.parent_id},prompt=\"{self.prompt}\",neg_prompt=\"{self.neg_prompt}\",seed={self.seed},steps={self.num_inference_steps},guidance={self.guidance_scale},refine_steps={self.refine_steps})"
