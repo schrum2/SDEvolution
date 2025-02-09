@@ -69,7 +69,7 @@ class Evolver:
                 image = self.generate_image(g)
 
             # Add image to viewer
-            self.viewer.add_image(image)
+            self.viewer.add_image(image, g.__str__())
         
             # Update the GUI to show new image
             self.root.update()

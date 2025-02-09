@@ -15,6 +15,7 @@ class ImageGridViewer:
         self.photo_images = []  # Stores PhotoImage objects (needed to prevent garbage collection)
         self.selected_images = set()  # Tracks which images are selected
         self.buttons = []  # Stores the button widgets
+        self.tooltips = []  # Stores tooltip text for each image
         self.callback_fn = callback_fn
         
         # Initial window sizing
@@ -63,12 +64,20 @@ class ImageGridViewer:
     def clear_images(self):
         """Clears all images from the grid and resets selections."""
         self.images.clear()
+        self.tooltips.clear()
         self.selected_images.clear()
         self._update_grid()
 
-    def add_image(self, pil_image):
-        """Add a new image to the grid. Expects a PIL Image object."""
+    def add_image(self, pil_image, tooltip_text=""):
+        """
+        Add a new image to the grid with an optional tooltip.
+        
+        Args:
+            pil_image: PIL Image object
+            tooltip_text: String to display when hovering over the image
+        """
         self.images.append(pil_image)
+        self.tooltips.append(tooltip_text)
         self._update_grid()
         
     def get_selected_images(self):
@@ -97,6 +106,36 @@ class ImageGridViewer:
         thumbnail_size = min(max_thumb_width, max_thumb_height)
         
         return (thumbnail_size, thumbnail_size)
+    
+    def _create_tooltip(self, widget, text):
+        """Create a tooltip for a widget."""
+        def enter(event):
+            # Create a toplevel window
+            tooltip = tk.Toplevel()
+            tooltip.wm_overrideredirect(True)  # Remove window decorations
+            
+            # Position tooltip near the mouse
+            x, y, _, _ = widget.bbox("insert")
+            x += widget.winfo_rootx() + 25
+            y += widget.winfo_rooty() + 20
+            
+            # Create tooltip label
+            label = tk.Label(tooltip, text=text, justify=tk.LEFT,
+                           background="#ffffe0", relief=tk.SOLID, borderwidth=1)
+            label.pack()
+            
+            tooltip.wm_geometry(f"+{x}+{y}")
+            widget._tooltip = tooltip
+            
+        def leave(event):
+            # Destroy tooltip when mouse leaves
+            if hasattr(widget, '_tooltip'):
+                widget._tooltip.destroy()
+                del widget._tooltip
+        
+        if text:  # Only bind events if there's tooltip text
+            widget.bind('<Enter>', enter)
+            widget.bind('<Leave>', leave)
     
     def _on_window_resize(self, event):
         """Handles window resize event."""
@@ -139,6 +178,9 @@ class ImageGridViewer:
                 relief='solid',
                 borderwidth=2
             )
+            
+            # Add tooltip
+            self._create_tooltip(btn, self.tooltips[idx])
             
             # Configure selection behavior
             btn.configure(
