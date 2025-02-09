@@ -12,8 +12,9 @@ MUTATE_MAX_GUIDANCE_DELTA = 1.0
 genome_id = 0
 
 class SDGenome:
-    def __init__(self, prompt, seed, steps, guidance_scale, randomize = True, parent_id = None):
+    def __init__(self, prompt, neg_prompt, seed, steps, guidance_scale, randomize = True, parent_id = None):
         self.prompt = prompt
+        self.neg_prompt = neg_prompt
         self.seed = seed
         self.num_inference_steps = steps
         self.guidance_scale = guidance_scale
@@ -43,7 +44,7 @@ class SDGenome:
         self.guidance_scale += delta
 
     def __str__(self):
-        return f"SDGenome(id={self.id},parent_id={self.parent_id},prompt=\"{self.prompt}\",seed={self.seed},steps={self.num_inference_steps},guidance={self.guidance_scale})"
+        return f"SDGenome(id={self.id},parent_id={self.parent_id},prompt=\"{self.prompt}\",neg_prompt=\"{self.neg_prompt}\",seed={self.seed},steps={self.num_inference_steps},guidance={self.guidance_scale})"
 
     def mutate(self):
         if bool(random.getrandbits(1)):
@@ -55,16 +56,15 @@ class SDGenome:
             self.change_guidance_scale(random.uniform(-MUTATE_MAX_GUIDANCE_DELTA, MUTATE_MAX_GUIDANCE_DELTA))
 
     def mutated_child(self):
-        child = SDGenome(self.prompt, self.seed, self.num_inference_steps, self.guidance_scale, False, self.id)
+        child = SDGenome(self.prompt, self.neg_prompt, self.seed, self.num_inference_steps, self.guidance_scale, False, self.id)
         child.mutate()
         return child
 
 class SDXLGenome(SDGenome):
-    def __init__(self, prompt, seed, steps, guidance_scale, refine_steps, neg_prompt, randomize = True, parent_id = None):
-        SDGenome.__init__(self, prompt, seed, steps, guidance_scale, randomize, parent_id)
+    def __init__(self, prompt, neg_prompt, seed, steps, guidance_scale, refine_steps, randomize = True, parent_id = None):
+        SDGenome.__init__(self, prompt, neg_prompt, seed, steps, guidance_scale, randomize, parent_id)
         self.refine_steps = refine_steps
         self.base_latents = None
-        self.neg_prompt = neg_prompt
 
         if randomize: 
             self.change_refine_steps(random.randint(-MUTATE_MAX_REFINE_STEP_DELTA, MUTATE_MAX_REFINE_STEP_DELTA))
@@ -73,7 +73,7 @@ class SDXLGenome(SDGenome):
         self.refine_steps += delta
 
     def __str__(self):
-        return f"SDXLGenome(id={self.id},parent_id={self.parent_id},prompt=\"{self.prompt}\",seed={self.seed},steps={self.num_inference_steps},guidance={self.guidance_scale},refine_steps={self.refine_steps},neg_prompt={self.neg_prompt})"
+        return f"SDXLGenome(id={self.id},parent_id={self.parent_id},prompt=\"{self.prompt}\",neg_prompt=\"{self.neg_prompt}\",seed={self.seed},steps={self.num_inference_steps},guidance={self.guidance_scale},refine_steps={self.refine_steps})"
 
     def mutate(self):
         if bool(random.getrandbits(1)):
@@ -86,6 +86,6 @@ class SDXLGenome(SDGenome):
             self.change_refine_steps(random.randint(-MUTATE_MAX_REFINE_STEP_DELTA, MUTATE_MAX_REFINE_STEP_DELTA))
 
     def mutated_child(self):
-        child = SDXLGenome(self.prompt, self.seed, self.num_inference_steps, self.guidance_scale, self.refine_steps, self.neg_prompt, False, self.id)
+        child = SDXLGenome(self.prompt, self.neg_prompt, self.seed, self.num_inference_steps, self.guidance_scale, self.refine_steps, False, self.id)
         child.mutate()
         return child

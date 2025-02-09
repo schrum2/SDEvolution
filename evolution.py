@@ -11,13 +11,10 @@ class Evolver:
         self.steps = 20
         self.guidance_scale = 7.5
         self.latents_first = False
-        self.has_neg_prompt = False
 
     def start_evolution(self):
         self.prompt = input("Image prompt: ")
-
-        if self.has_neg_prompt:
-            self.neg_prompt = input("Negative prompt: ")
+        self.neg_prompt = input("Negative prompt: ")
 
         self.initialize_population()
         self.generation = 0
@@ -112,7 +109,7 @@ class SDEvolver(Evolver):
         )
 
     def initialize_population(self):
-        self.genomes = [SDGenome(self.prompt, seed, self.steps, self.guidance_scale) for seed in range(self.population_size)]
+        self.genomes = [SDGenome(self.prompt, self.neg_prompt, seed, self.steps, self.guidance_scale) for seed in range(self.population_size)]
 
     def generate_image(self, g):
         # generate fresh new image
@@ -138,7 +135,6 @@ class SDXLEvolver(Evolver):
 
         self.refine_steps = 20
         self.latents_first = True
-        self.has_neg_prompt = True
  
         model="stabilityai/stable-diffusion-xl-base-1.0"
         print(f"Using {model}")
@@ -162,7 +158,7 @@ class SDXLEvolver(Evolver):
         )
 
     def initialize_population(self):
-        self.genomes = [SDXLGenome(self.prompt, seed, self.steps, self.guidance_scale, self.refine_steps, self.neg_prompt) for seed in range(self.population_size)]
+        self.genomes = [SDXLGenome(self.prompt, self.neg_prompt, seed, self.steps, self.guidance_scale, self.refine_steps) for seed in range(self.population_size)]
 
     def generate_latents(self,g):
         # generate latents first
