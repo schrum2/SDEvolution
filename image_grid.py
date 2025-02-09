@@ -8,7 +8,7 @@ This class was made by Claude: https://claude.ai/
 """
 
 class ImageGridViewer:
-    def __init__(self, root, callback_fn=None):
+    def __init__(self, root, callback_fn=None, initial_prompt="", initial_neg_prompt=""):
         self.root = root
         self.root.title("Generated Images")
         self.images = []  # Stores PIL Image objects
@@ -35,28 +35,52 @@ class ImageGridViewer:
         self.image_frame = tk.Frame(self.main_container)
         self.image_frame.pack(expand=True, fill=tk.BOTH, pady=10)
         
-        # Create frame for control buttons with pack_propagate(False) to maintain size
-        self.control_frame = tk.Frame(self.main_container, height=60)  # Fixed height
+        # Create frame for control buttons and text inputs
+        self.control_frame = tk.Frame(self.main_container, height=120)  # Increased height for text fields
         self.control_frame.pack(fill=tk.X, pady=5, padx=10)
         self.control_frame.pack_propagate(False)  # Prevent frame from shrinking
         
+        # Create button frame
+        self.button_frame = tk.Frame(self.control_frame)
+        self.button_frame.pack(fill=tk.X)
+        
         # Add Done button
         self.done_button = tk.Button(
-            self.control_frame,
+            self.button_frame,
             text="Evolve",
             command=self._handle_done,
             width=20
         )
-        self.done_button.pack(side=tk.LEFT, padx=5, pady=10)
+        self.done_button.pack(side=tk.LEFT, padx=5, pady=5)
         
         # Add Close button
         self.close_button = tk.Button(
-            self.control_frame,
+            self.button_frame,
             text="Close",
             command=self.root.destroy,
             width=20
         )
-        self.close_button.pack(side=tk.LEFT, padx=5, pady=10)
+        self.close_button.pack(side=tk.LEFT, padx=5, pady=5)
+        
+        # Create prompt input frame
+        self.prompt_frame = tk.Frame(self.control_frame)
+        self.prompt_frame.pack(fill=tk.X, padx=5)
+        
+        # Add prompt label and entry
+        tk.Label(self.prompt_frame, text="Update prompt: ").pack(side=tk.LEFT)
+        self.prompt_entry = tk.Entry(self.prompt_frame)
+        self.prompt_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        self.prompt_entry.insert(0, initial_prompt)
+        
+        # Create negative prompt input frame
+        self.neg_prompt_frame = tk.Frame(self.control_frame)
+        self.neg_prompt_frame.pack(fill=tk.X, padx=5)
+        
+        # Add negative prompt label and entry
+        tk.Label(self.neg_prompt_frame, text="Update Neg prompt: ").pack(side=tk.LEFT)
+        self.neg_prompt_entry = tk.Entry(self.neg_prompt_frame)
+        self.neg_prompt_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        self.neg_prompt_entry.insert(0, initial_neg_prompt)
 
         # Bind resize event
         self.root.bind('<Configure>', self._on_window_resize)
@@ -88,7 +112,7 @@ class ImageGridViewer:
         """Calculate thumbnail size based on current window dimensions."""
         # Get current window size
         window_width = self.root.winfo_width()
-        window_height = self.root.winfo_height() - 60  # Subtract control frame height
+        window_height = self.root.winfo_height() - 120  # Adjusted for larger control frame
         
         # Calculate grid dimensions for 3x3 grid
         n_images = len(self.images)
@@ -214,4 +238,6 @@ class ImageGridViewer:
         """Called when Evolve button is clicked"""
         if self.callback_fn:
             selected = self.get_selected_images()
-            self.callback_fn(selected)
+            prompt = self.prompt_entry.get()
+            neg_prompt = self.neg_prompt_entry.get()
+            self.callback_fn(selected, prompt, neg_prompt)

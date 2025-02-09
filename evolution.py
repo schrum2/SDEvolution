@@ -20,10 +20,15 @@ class Evolver:
         self.generation = 0
 
         self.root = tk.Tk()
-        self.viewer = ImageGridViewer(self.root, callback_fn=self.next_generation)
+        self.viewer = ImageGridViewer(
+            self.root, 
+            callback_fn=self.next_generation,
+            initial_prompt=self.prompt,
+            initial_neg_prompt=self.neg_prompt
+        )
         self.fill_with_images_from_genomes(self.genomes)
 
-    def next_generation(self,selected_images):
+    def next_generation(self,selected_images,prompt,neg_prompt):
         print(f"Generation {self.generation}---------------------------")
         for (i,image) in selected_images:
             print(f"Selected for survival: {self.genomes[i]}")
@@ -35,7 +40,11 @@ class Evolver:
         children = []
         # Fill remaining slots with mutated children
         for i in range(len(keepers), self.population_size):
-            children.append(random.choice(keepers).mutated_child())
+            g = random.choice(keepers).mutated_child() # New genome
+            # prompts may have changed
+            g.prompt = prompt
+            g.neg_prompt = neg_prompt
+            children.append(g)
 
         # combined population
         self.genomes = keepers + children
