@@ -26,33 +26,36 @@ class ImageGridViewer:
         window_height = int(screen_height * 0.75)
         root.geometry(f"{window_width}x{window_height}")
 
-        # Create frame for images
-        self.image_frame = tk.Frame(self.root)
+        # Create main container frame
+        self.main_container = tk.Frame(self.root)
+        self.main_container.pack(expand=True, fill=tk.BOTH)
+        
+        # Create frame for images with weight=1 to allow expansion
+        self.image_frame = tk.Frame(self.main_container)
         self.image_frame.pack(expand=True, fill=tk.BOTH, pady=10)
         
-        # Create frame for control buttons
-        self.control_frame = tk.Frame(self.root)
-        self.control_frame.pack(pady=5)
+        # Create frame for control buttons with pack_propagate(False) to maintain size
+        self.control_frame = tk.Frame(self.main_container, height=60)  # Fixed height
+        self.control_frame.pack(fill=tk.X, pady=5, padx=10)
+        self.control_frame.pack_propagate(False)  # Prevent frame from shrinking
         
         # Add Done button
         self.done_button = tk.Button(
             self.control_frame,
             text="Evolve",
             command=self._handle_done,
-            width=20,
-            height=2
+            width=20
         )
-        self.done_button.pack(side=tk.LEFT, padx=5)
+        self.done_button.pack(side=tk.LEFT, padx=5, pady=10)
         
         # Add Close button
         self.close_button = tk.Button(
             self.control_frame,
             text="Close",
             command=self.root.destroy,
-            width=20,
-            height=2
+            width=20
         )
-        self.close_button.pack(side=tk.LEFT, padx=5)
+        self.close_button.pack(side=tk.LEFT, padx=5, pady=10)
 
         # Bind resize event
         self.root.bind('<Configure>', self._on_window_resize)
@@ -76,7 +79,7 @@ class ImageGridViewer:
         """Calculate thumbnail size based on current window dimensions."""
         # Get current window size
         window_width = self.root.winfo_width()
-        window_height = self.root.winfo_height()
+        window_height = self.root.winfo_height() - 60  # Subtract control frame height
         
         # Calculate grid dimensions for 3x3 grid
         n_images = len(self.images)
