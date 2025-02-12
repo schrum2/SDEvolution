@@ -188,11 +188,11 @@ class SDXLEvolver(Evolver):
     def generate_image(self, g):
         
         print(f"Generate new image for {g}")
-        
-        # Can the refiner have its own generator from a seed?
+        generator = torch.Generator("cuda").manual_seed(g.seed)
         with torch.no_grad():
             image = self.refiner_pipe(
                 prompt = g.prompt,
+                generator=generator,
                 negative_prompt = g.neg_prompt,
                 num_inference_steps=g.refine_steps,
                 image = [g.base_latents]
