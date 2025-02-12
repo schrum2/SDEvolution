@@ -194,7 +194,7 @@ class SDXLEvolver(Evolver):
                 prompt = g.prompt,
                 generator=generator,
                 negative_prompt = g.neg_prompt,
-                num_inference_steps=g.refine_steps,
+                num_inference_steps=g.refine_steps, # Actual steps is roughly 1/4th of the value provided here, but the exact reason is not clear
                 image = [g.base_latents]
             ).images[0]
 

@@ -6,7 +6,7 @@ to Stable Diffusion. Can be mutated to change the configuration.
 import random
 
 MUTATE_MAX_STEP_DELTA = 10
-MUTATE_MAX_REFINE_STEP_DELTA = 10
+MUTATE_MAX_REFINE_STEP_DELTA = 20 # Made large: actual steps is just 1/4th of parameter value for some reason
 MUTATE_MAX_GUIDANCE_DELTA = 1.0
 
 genome_id = 0
