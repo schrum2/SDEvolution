@@ -11,11 +11,12 @@ MUTATE_MAX_REFINE_STEP_DELTA = 20 # Made large: actual steps is just 1/4th of pa
 MUTATE_MAX_GUIDANCE_DELTA = 1.0
 
 ANNOTATED_CONTROL_NETS = [
-    ('control_v11p_sd15_normalbae', controlnet_aux.NormalBaeDetector),
-    ('control_v11p_sd15_mlsd', controlnet_aux.MLSDdetector),
-    ('control_v11p_sd15_lineart', controlnet_aux.LineartDetector),
-    ('control_v11p_sd15s2_lineart_anime', controlnet_aux.LineartAnimeDetector),
-    ('control_v11p_sd15_openpose', controlnet_aux.OpenposeDetector)
+    ('control_v11p_sd15_canny', controlnet_aux.CannyDetector()), # This takes extra parameters when applied, so I'm not sure it fits in with the rest
+    ('control_v11p_sd15_normalbae', controlnet_aux.NormalBaeDetector.from_pretrained("lllyasviel/Annotators")),
+    ('control_v11p_sd15_mlsd', controlnet_aux.MLSDdetector.from_pretrained("lllyasviel/Annotators")),
+    ('control_v11p_sd15_lineart', controlnet_aux.LineartDetector.from_pretrained("lllyasviel/Annotators")),
+    ('control_v11p_sd15s2_lineart_anime', controlnet_aux.LineartAnimeDetector.from_pretrained("lllyasviel/Annotators")),
+    ('control_v11p_sd15_openpose', controlnet_aux.OpenposeDetector.from_pretrained("lllyasviel/Annotators"))
 ]
 
 genome_id = 0
