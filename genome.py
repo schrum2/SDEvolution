@@ -4,19 +4,10 @@ to Stable Diffusion. Can be mutated to change the configuration.
 """
 
 import random
-import controlnet_aux
 
 MUTATE_MAX_STEP_DELTA = 10
 MUTATE_MAX_REFINE_STEP_DELTA = 20 # Made large: actual steps is just 1/4th of parameter value for some reason
 MUTATE_MAX_GUIDANCE_DELTA = 1.0
-
-ANNOTATED_CONTROL_NETS = [
-    ('control_v11p_sd15_normalbae', controlnet_aux.NormalBaeDetector),
-    ('control_v11p_sd15_mlsd', controlnet_aux.MLSDdetector),
-    ('control_v11p_sd15_lineart', controlnet_aux.LineartDetector),
-    ('control_v11p_sd15s2_lineart_anime', controlnet_aux.LineartAnimeDetector),
-    ('control_v11p_sd15_openpose', controlnet_aux.OpenposeDetector)
-]
 
 genome_id = 0
 
