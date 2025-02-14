@@ -4,8 +4,9 @@ import random
 from genome import (SDGenome, SDXLGenome)
 import torch
 from diffusers import EulerDiscreteScheduler
+from abc import ABC, abstractmethod
 
-class Evolver:
+class Evolver(ABC):
     def __init__(self):
         self.population_size = 9
         self.steps = 20
@@ -28,27 +29,36 @@ class Evolver:
         )
         self.fill_with_images_from_genomes(self.genomes)
 
+    @abstractmethod
+    def initialize_population(self):
+        pass
+
     def next_generation(self,selected_images,prompt,neg_prompt):
-        print(f"Generation {self.generation}---------------------------")
-        for (i,image) in selected_images:
-            print(f"Selected for survival: {self.genomes[i]}")
-            self.genomes[i].set_image(image)
+        if selected_images == []:
+            print("Resetting population and generations--------------------")
+            self.initialize_population()
+            self.generation = 0
+        else:
+            print(f"Generation {self.generation}---------------------------")
+            for (i,image) in selected_images:
+                print(f"Selected for survival: {self.genomes[i]}")
+                self.genomes[i].set_image(image)
 
-        # Pure elitism
-        keepers = [self.genomes[i] for (i,_) in selected_images]
+            # Pure elitism
+            keepers = [self.genomes[i] for (i,_) in selected_images]
 
-        children = []
-        # Fill remaining slots with mutated children
-        for i in range(len(keepers), self.population_size):
-            g = random.choice(keepers).mutated_child() # New genome
-            # prompts may have changed
-            g.prompt = prompt
-            g.neg_prompt = neg_prompt
-            children.append(g)
+            children = []
+            # Fill remaining slots with mutated children
+            for i in range(len(keepers), self.population_size):
+                g = random.choice(keepers).mutated_child() # New genome
+                # prompts may have changed
+                g.prompt = prompt
+                g.neg_prompt = neg_prompt
+                children.append(g)
 
-        # combined population
-        self.genomes = keepers + children
-        self.generation += 1
+            # combined population
+            self.genomes = keepers + children
+            self.generation += 1
 
         self.fill_with_images_from_genomes(self.genomes)
 
