@@ -34,6 +34,8 @@ class Evolver(ABC):
         pass
 
     def next_generation(self,selected_images,prompt,neg_prompt):
+        self.prompt = prompt
+        self.neg_prompt = neg_prompt
         if selected_images == []:
             print("Resetting population and generations--------------------")
             self.initialize_population()
