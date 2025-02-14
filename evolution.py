@@ -8,8 +8,6 @@ from diffusers import EulerDiscreteScheduler
 class Evolver:
     def __init__(self):
         self.population_size = 9
-        self.steps = 20
-        self.guidance_scale = 7.5
         self.latents_first = False
 
     def start_evolution(self):
@@ -32,7 +30,7 @@ class Evolver:
         print(f"Generation {self.generation}---------------------------")
         for (i,image) in selected_images:
             print(f"Selected for survival: {self.genomes[i]}")
-            self.genomes[i].set_image(image)
+            self.genomes[i].survivor = True
 
         # Pure elitism
         keepers = [self.genomes[i] for (i,_) in selected_images]
@@ -70,12 +68,14 @@ class Evolver:
 
         for g in self.genomes:
             
-            if g.image:
+            if g.survivor:
                 # used saved image from previous generation
                 print(f"Use cached image for {g}")
                 image = g.image
             else:
                 image = self.generate_image(g)
+
+            g.set_image(image)
 
             # Add image to viewer
             self.viewer.add_image(image, g.__str__())
