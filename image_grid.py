@@ -47,7 +47,7 @@ class ImageGridViewer:
         # Add Done button
         self.done_button = tk.Button(
             self.button_frame,
-            text="Evolve",
+            text="Reset",
             command=self._handle_done,
             width=20
         )
@@ -234,6 +234,11 @@ class ImageGridViewer:
             self.selected_images.add(idx)
             button.configure(bg='blue')  # Highlight selected
 
+        if len(self.selected_images) == 0:
+            self.done_button.config(text="Reset")
+        else:
+            self.done_button.config(text="Evolve Selected")
+
     def _handle_done(self):
         """Called when Evolve button is clicked"""
         if self.callback_fn:
@@ -241,3 +246,5 @@ class ImageGridViewer:
             prompt = self.prompt_entry.get()
             neg_prompt = self.neg_prompt_entry.get()
             self.callback_fn(selected, prompt, neg_prompt)
+
+        self.done_button.config(text="Reset")
