@@ -39,9 +39,6 @@ class Evolver(ABC):
         pass
 
     def next_generation(self,selected_images,prompt,neg_prompt):
-        # Track history of all genomes
-        self.evolution_history.append(self.genomes.copy())
-
         self.prompt = prompt
         self.neg_prompt = neg_prompt
         if selected_images == []:
@@ -53,6 +50,9 @@ class Evolver(ABC):
             for (i,image) in selected_images:
                 print(f"Selected for survival: {self.genomes[i]}")
                 self.genomes[i].set_image(image)
+
+            # Track history of all genomes
+            self.evolution_history.append(self.genomes.copy())
 
             # Pure elitism
             keepers = [self.genomes[i] for (i,_) in selected_images]
