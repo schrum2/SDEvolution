@@ -241,10 +241,10 @@ class ImageGridViewer:
 
     def _handle_done(self):
         """Called when Evolve button is clicked"""
+
+        self.done_button.config(text="Reset")
         if self.callback_fn:
             selected = self.get_selected_images()
             prompt = self.prompt_entry.get()
             neg_prompt = self.neg_prompt_entry.get()
             self.callback_fn(selected, prompt, neg_prompt)
-
-        self.done_button.config(text="Reset")
