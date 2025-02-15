@@ -13,6 +13,8 @@ class Evolver(ABC):
         self.guidance_scale = 7.5
         self.latents_first = False
 
+        self.evolution_history = []
+
     def start_evolution(self):
         self.genomes = []
         self.generation = 0
@@ -22,8 +24,14 @@ class Evolver(ABC):
             self.root, 
             callback_fn=self.next_generation,
             initial_prompt="",
-            initial_neg_prompt=""
+            initial_neg_prompt="",
+            back_fn=self.previous_generation
         )
+        self.fill_with_images_from_genomes(self.genomes)
+
+    def previous_generation(self):
+        self.genomes = self.evolution_history.pop()
+        self.generation -= 1
         self.fill_with_images_from_genomes(self.genomes)
 
     @abstractmethod
@@ -31,6 +39,9 @@ class Evolver(ABC):
         pass
 
     def next_generation(self,selected_images,prompt,neg_prompt):
+        # Track history of all genomes
+        self.evolution_history.append(self.genomes.copy())
+
         self.prompt = prompt
         self.neg_prompt = neg_prompt
         if selected_images == []:

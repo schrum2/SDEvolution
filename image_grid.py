@@ -8,7 +8,7 @@ This class was made by Claude: https://claude.ai/
 """
 
 class ImageGridViewer:
-    def __init__(self, root, callback_fn=None, initial_prompt="", initial_neg_prompt=""):
+    def __init__(self, root, callback_fn=None, initial_prompt="", initial_neg_prompt="", back_fn=None):
         self.root = root
         self.root.title("Generated Images")
         self.images = []  # Stores PIL Image objects
@@ -17,6 +17,7 @@ class ImageGridViewer:
         self.buttons = []  # Stores the button widgets
         self.tooltips = []  # Stores tooltip text for each image
         self.callback_fn = callback_fn
+        self.back_fn = back_fn
         
         # Initial window sizing
         screen_width = root.winfo_screenwidth()
@@ -44,6 +45,15 @@ class ImageGridViewer:
         self.button_frame = tk.Frame(self.control_frame)
         self.button_frame.pack(fill=tk.X)
         
+        # Add Back button
+        self.back_button = tk.Button(
+            self.button_frame,
+            text="Previous Generation",
+            command=self._handle_back,
+            width=20
+        )
+        self.back_button.pack(side=tk.LEFT, padx=5, pady=5)
+
         # Add Done button
         self.done_button = tk.Button(
             self.button_frame,
@@ -248,3 +258,9 @@ class ImageGridViewer:
             prompt = self.prompt_entry.get()
             neg_prompt = self.neg_prompt_entry.get()
             self.callback_fn(selected, prompt, neg_prompt)
+
+    def _handle_back(self):
+        """Called when Back button is clicked"""
+
+        if self.back_fn:
+            self.back_fn()
