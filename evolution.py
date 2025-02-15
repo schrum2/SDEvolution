@@ -49,7 +49,7 @@ class Evolver(ABC):
             print(f"Generation {self.generation}---------------------------")
             for (i,image) in selected_images:
                 print(f"Selected for survival: {self.genomes[i]}")
-                self.genomes[i].set_image(image)
+                #self.genomes[i].set_image(image) # Done earlier, for ALL genomes
 
             # Track history of all genomes
             self.evolution_history.append(self.genomes.copy())
@@ -96,6 +96,7 @@ class Evolver(ABC):
                 image = g.image
             else:
                 image = self.generate_image(g)
+                g.set_image(image)
 
             # Add image to viewer
             self.viewer.add_image(image, g.__str__())
