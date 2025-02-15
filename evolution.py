@@ -160,12 +160,15 @@ from diffusers import (
 )
 
 class SDXLEvolver(Evolver):
-    def __init__(self):
+    def __init__(self, refine):
         Evolver.__init__(self)
 
         self.refine_steps = 20
-        self.latents_first = True
- 
+        if refine:
+            self.latents_first = True
+        else:
+            self.latents_first = False 
+
         model="stabilityai/stable-diffusion-xl-base-1.0"
         print(f"Using {model}")
 
@@ -174,18 +177,20 @@ class SDXLEvolver(Evolver):
             torch_dtype=torch.float16
         )
 
-        self.refiner_model = "stabilityai/stable-diffusion-xl-refiner-1.0"
-        self.refiner_pipe = StableDiffusionXLImg2ImgPipeline.from_pretrained(
-            self.refiner_model,
-            torch_dtype = torch.float16
-        )
+        if refine:
+            self.refiner_model = "stabilityai/stable-diffusion-xl-refiner-1.0"
+            self.refiner_pipe = StableDiffusionXLImg2ImgPipeline.from_pretrained(
+                self.refiner_model,
+                torch_dtype = torch.float16
+            )
 
         self.pipe.scheduler = EulerDiscreteScheduler.from_config(
             self.pipe.scheduler.config
         )
-        self.refiner_pipe.scheduler = EulerDiscreteScheduler.from_config(
-            self.refiner_pipe.scheduler.config
-        )
+        if refine:
+            self.refiner_pipe.scheduler = EulerDiscreteScheduler.from_config(
+                self.refiner_pipe.scheduler.config
+            )
 
     def initialize_population(self):
         self.genomes = [SDXLGenome(self.prompt, self.neg_prompt, seed, self.steps, self.guidance_scale, self.refine_steps) for seed in range(self.population_size)]
@@ -210,13 +215,23 @@ class SDXLEvolver(Evolver):
         
         print(f"Generate new image for {g}")
         generator = torch.Generator("cuda").manual_seed(g.seed)
-        with torch.no_grad():
-            image = self.refiner_pipe(
-                prompt = g.prompt,
-                generator=generator,
-                negative_prompt = g.neg_prompt,
-                num_inference_steps=g.refine_steps, # Actual steps is roughly 1/4th of the value provided here, but the exact reason is not clear
-                image = [g.base_latents]
-            ).images[0]
+
+        if self.latents_first:
+            with torch.no_grad():
+                image = self.refiner_pipe(
+                    prompt = g.prompt,
+                    generator=generator,
+                    negative_prompt = g.neg_prompt,
+                    num_inference_steps=g.refine_steps, # Actual steps is roughly 1/4th of the value provided here, but the exact reason is not clear
+                    image = [g.base_latents]
+                ).images[0]
+        else:
+            with torch.no_grad():
+                image = self.pipe(
+                    prompt = g.prompt,
+                    generator=generator,
+                    negative_prompt = g.neg_prompt,
+                    num_inference_steps=g.num_inference_steps 
+                ).images[0]
 
         return image

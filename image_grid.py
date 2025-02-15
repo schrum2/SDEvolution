@@ -77,7 +77,7 @@ class ImageGridViewer:
         self.prompt_frame.pack(fill=tk.X, padx=5)
         
         # Add prompt label and entry
-        tk.Label(self.prompt_frame, text="Update prompt: ").pack(side=tk.LEFT)
+        tk.Label(self.prompt_frame, text="Prompt: ").pack(side=tk.LEFT)
         self.prompt_entry = tk.Entry(self.prompt_frame)
         self.prompt_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
         self.prompt_entry.insert(0, initial_prompt)
@@ -87,7 +87,7 @@ class ImageGridViewer:
         self.neg_prompt_frame.pack(fill=tk.X, padx=5)
         
         # Add negative prompt label and entry
-        tk.Label(self.neg_prompt_frame, text="Update Neg prompt: ").pack(side=tk.LEFT)
+        tk.Label(self.neg_prompt_frame, text="Neg prompt: ").pack(side=tk.LEFT)
         self.neg_prompt_entry = tk.Entry(self.neg_prompt_frame)
         self.neg_prompt_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
         self.neg_prompt_entry.insert(0, initial_neg_prompt)
