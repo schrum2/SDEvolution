@@ -14,18 +14,15 @@ class Evolver(ABC):
         self.latents_first = False
 
     def start_evolution(self):
-        self.prompt = input("Image prompt: ")
-        self.neg_prompt = input("Negative prompt: ")
-
-        self.initialize_population()
+        self.genomes = []
         self.generation = 0
 
         self.root = tk.Tk()
         self.viewer = ImageGridViewer(
             self.root, 
             callback_fn=self.next_generation,
-            initial_prompt=self.prompt,
-            initial_neg_prompt=self.neg_prompt
+            initial_prompt="",
+            initial_neg_prompt=""
         )
         self.fill_with_images_from_genomes(self.genomes)
 
