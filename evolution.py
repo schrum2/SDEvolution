@@ -183,6 +183,9 @@ class SDXLEvolver(Evolver):
                 self.refiner_model,
                 torch_dtype = torch.float16
             )
+        else:
+            # Since there will be no switching, just put in cuda now
+            self.pipe.to("cuda")
 
         self.pipe.scheduler = EulerDiscreteScheduler.from_config(
             self.pipe.scheduler.config
