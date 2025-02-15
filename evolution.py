@@ -7,8 +7,8 @@ from diffusers import EulerDiscreteScheduler
 from abc import ABC, abstractmethod
 
 class Evolver(ABC):
-    def __init__(self):
-        self.population_size = 9
+    def __init__(self, population_size = 9):
+        self.population_size = population_size
         self.steps = 20
         self.guidance_scale = 7.5
         self.latents_first = False
@@ -161,7 +161,7 @@ from diffusers import (
 
 class SDXLEvolver(Evolver):
     def __init__(self, refine):
-        Evolver.__init__(self)
+        Evolver.__init__(self, 4) # Smaller population size, generation takes so long
 
         self.refine_steps = 20
         if refine:
