@@ -2,6 +2,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from math import ceil, sqrt
 import io
+import re
 
 """
 This class was made by Claude: https://claude.ai/
@@ -63,6 +64,15 @@ class ImageGridViewer:
         )
         self.done_button.pack(side=tk.LEFT, padx=5, pady=5)
         
+        # Add Save button
+        self.save_button = tk.Button(
+            self.button_frame,
+            text="Save Selected",
+            command=self._save_selected,
+            width=20
+        )
+        self.save_button.pack(side=tk.LEFT, padx=5, pady=5)
+
         # Add Close button
         self.close_button = tk.Button(
             self.button_frame,
@@ -258,6 +268,15 @@ class ImageGridViewer:
             prompt = self.prompt_entry.get()
             neg_prompt = self.neg_prompt_entry.get()
             self.callback_fn(selected, prompt, neg_prompt)
+
+    def _save_selected(self):
+        selected = self.get_selected_images()
+        for (i,image) in selected:
+            full_desc = self.tooltips[i]
+            match = re.search(r"id=(\d+)", full_desc)
+            output = f"Image_Id{match.group(1)}_Num{i}.png"
+            image.save(output)
+            print(f"Saved {output}")
 
     def _handle_back(self):
         """Called when Back button is clicked"""
