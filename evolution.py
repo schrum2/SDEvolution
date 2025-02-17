@@ -6,6 +6,11 @@ import torch
 from diffusers import EulerDiscreteScheduler
 from abc import ABC, abstractmethod
 
+#SD_MODEL = "runwayml/stable-diffusion-v1-5"
+SD_MODEL = "stablediffusionapi/deliberate-v2"
+SDXL_MODEL = "stabilityai/stable-diffusion-xl-base-1.0"
+SDXL_REFINER = "stabilityai/stable-diffusion-xl-refiner-1.0"
+
 class Evolver(ABC):
     def __init__(self, population_size = 9):
         self.population_size = population_size
@@ -99,7 +104,7 @@ class Evolver(ABC):
                 g.set_image(image)
 
             # Add image to viewer
-            self.viewer.add_image(image, g.__str__())
+            self.viewer.add_image(image, g.__str__(), g.metadata())
         
             # Update the GUI to show new image
             self.root.update()
@@ -118,15 +123,12 @@ from diffusers import StableDiffusionPipeline
 class SDEvolver(Evolver):
     def __init__(self):
         Evolver.__init__(self)
-
-        #model="runwayml/stable-diffusion-v1-5"
-        model="stablediffusionapi/deliberate-v2"
-
-        print(f"Using {model}")
+        global SD_MODEL
+        print(f"Using {SD_MODEL}")
 
         # I disabled the safety checker. There is a risk of NSFW content.
         self.pipe = StableDiffusionPipeline.from_pretrained(
-            model,
+            SD_MODEL,
             torch_dtype=torch.float16,
             safety_checker = None,
             requires_safety_checker = False
@@ -169,16 +171,15 @@ class SDXLEvolver(Evolver):
         else:
             self.latents_first = False 
 
-        model="stabilityai/stable-diffusion-xl-base-1.0"
-        print(f"Using {model}")
+        print(f"Using {SDXL_MODEL}")
 
         self.pipe = StableDiffusionXLPipeline.from_pretrained(
-            model,
+            SDXL_MODEL,
             torch_dtype=torch.float16
         )
 
         if refine:
-            self.refiner_model = "stabilityai/stable-diffusion-xl-refiner-1.0"
+            self.refiner_model = SDXL_REFINER,
             self.refiner_pipe = StableDiffusionXLImg2ImgPipeline.from_pretrained(
                 self.refiner_model,
                 torch_dtype = torch.float16

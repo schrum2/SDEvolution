@@ -4,6 +4,8 @@ to Stable Diffusion. Can be mutated to change the configuration.
 """
 
 import random
+import json
+from evolution import SD_MODEL
 
 MUTATE_MAX_STEP_DELTA = 10
 MUTATE_MAX_REFINE_STEP_DELTA = 20 # Made large: actual steps is just 1/4th of parameter value for some reason
@@ -47,6 +49,18 @@ class SDGenome:
 
     def __str__(self):
         return f"SDGenome(id={self.id},parent_id={self.parent_id},prompt=\"{self.prompt}\",neg_prompt=\"{self.neg_prompt}\",seed={self.seed},steps={self.num_inference_steps},guidance={self.guidance_scale})"
+
+    def metadata(self):
+        return {
+            "model" : SD_MODEL,
+            "id" : self.id,
+            "parent_id" : self.parent_id,
+            "prompt" : self.prompt,
+            "neg_prompt" : self.neg_prompt,
+            "seed" : self.seed,
+            "num_inference_steps" : self.num_inference_steps,
+            "guidance_scale" : self.guidance_scale
+        }
 
     def mutate(self):
         if bool(random.getrandbits(1)):
