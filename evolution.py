@@ -5,11 +5,7 @@ from genome import (SDGenome, SDXLGenome)
 import torch
 from diffusers import EulerDiscreteScheduler
 from abc import ABC, abstractmethod
-
-#SD_MODEL = "runwayml/stable-diffusion-v1-5"
-SD_MODEL = "stablediffusionapi/deliberate-v2"
-SDXL_MODEL = "stabilityai/stable-diffusion-xl-base-1.0"
-SDXL_REFINER = "stabilityai/stable-diffusion-xl-refiner-1.0"
+from models import SD_MODEL, SDXL_MODEL
 
 class Evolver(ABC):
     def __init__(self, population_size = 9):

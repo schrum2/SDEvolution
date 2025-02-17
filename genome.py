@@ -5,7 +5,7 @@ to Stable Diffusion. Can be mutated to change the configuration.
 
 import random
 import json
-from evolution import SD_MODEL
+from models import SD_MODEL, SDXL_MODEL
 
 MUTATE_MAX_STEP_DELTA = 10
 MUTATE_MAX_REFINE_STEP_DELTA = 20 # Made large: actual steps is just 1/4th of parameter value for some reason
