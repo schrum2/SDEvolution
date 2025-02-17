@@ -277,7 +277,7 @@ class ImageGridViewer:
         selected = self.get_selected_images()
         for (i,image) in selected:
             full_desc = self.tooltips[i]
-            image_meta = full_desc = self.metadata[i]
+            image_meta = self.metadata[i]
 
             metadata = PngImagePlugin.PngInfo()
             gen_meta_str = json.dumps(image_meta)
