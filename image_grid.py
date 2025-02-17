@@ -1,8 +1,9 @@
 import tkinter as tk
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, PngImagePlugin
 from math import ceil, sqrt
 import io
 import re
+import json
 
 """
 This class was made by Claude: https://claude.ai/
@@ -17,6 +18,7 @@ class ImageGridViewer:
         self.selected_images = set()  # Tracks which images are selected
         self.buttons = []  # Stores the button widgets
         self.tooltips = []  # Stores tooltip text for each image
+        self.metadata = []  # to be embedded in PNG images
         self.callback_fn = callback_fn
         self.back_fn = back_fn
         
@@ -109,10 +111,11 @@ class ImageGridViewer:
         """Clears all images from the grid and resets selections."""
         self.images.clear()
         self.tooltips.clear()
+        self.metadata.clear()
         self.selected_images.clear()
         self._update_grid()
 
-    def add_image(self, pil_image, tooltip_text=""):
+    def add_image(self, pil_image, tooltip_text="", image_metadata=None):
         """
         Add a new image to the grid with an optional tooltip.
         
@@ -122,6 +125,7 @@ class ImageGridViewer:
         """
         self.images.append(pil_image)
         self.tooltips.append(tooltip_text)
+        self.metadata.append(image_metadata)
         self._update_grid()
         
     def get_selected_images(self):
@@ -273,9 +277,15 @@ class ImageGridViewer:
         selected = self.get_selected_images()
         for (i,image) in selected:
             full_desc = self.tooltips[i]
+            image_meta = full_desc = self.metadata[i]
+
+            metadata = PngImagePlugin.PngInfo()
+            gen_meta_str = json.dumps(image_meta)
+            metadata.add_text("SD_data",gen_meta_str)
+
             match = re.search(r"id=(\d+)", full_desc)
             output = f"Image_Id{match.group(1)}_Num{i}.png"
-            image.save(output)
+            image.save(output, "PNG", pnginfo=metadata)
             print(f"Saved {output}")
 
     def _handle_back(self):
