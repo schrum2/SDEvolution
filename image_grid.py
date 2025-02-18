@@ -279,9 +279,12 @@ class ImageGridViewer:
             full_desc = self.tooltips[i]
             image_meta = self.metadata[i]
 
+            #print(image_meta)
+            #print(type(image_meta))
+
             metadata = PngImagePlugin.PngInfo()
-            for key, value in image_meta:
-                metadata.add_text(f"sd_{key}", value)
+            for key in image_meta:
+                metadata.add_text(f"sd_{key}", str(image_meta[key]))
 
             match = re.search(r"id=(\d+)", full_desc)
             output = f"Image_Id{match.group(1)}_Num{i}.png"
