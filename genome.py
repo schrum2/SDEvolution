@@ -92,6 +92,19 @@ class SDXLGenome(SDGenome):
     def __str__(self):
         return f"SDXLGenome(id={self.id},parent_id={self.parent_id},prompt=\"{self.prompt}\",neg_prompt=\"{self.neg_prompt}\",seed={self.seed},steps={self.num_inference_steps},guidance={self.guidance_scale},refine_steps={self.refine_steps})"
 
+    def metadata(self):
+        return {
+            "model" : SDXL_MODEL,
+            "id" : self.id,
+            "parent_id" : self.parent_id,
+            "prompt" : self.prompt,
+            "neg_prompt" : self.neg_prompt,
+            "seed" : self.seed,
+            "num_inference_steps" : self.num_inference_steps,
+            # "refine_steps" : self.refine_steps,
+            "guidance_scale" : self.guidance_scale
+        }
+
     def mutate(self):
         if bool(random.getrandbits(1)):
             # will be a big change

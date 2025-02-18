@@ -280,8 +280,8 @@ class ImageGridViewer:
             image_meta = self.metadata[i]
 
             metadata = PngImagePlugin.PngInfo()
-            gen_meta_str = json.dumps(image_meta)
-            metadata.add_text("SD_data",gen_meta_str)
+            for key, value in image_meta:
+                metadata.add_text(f"sd_{key}", value)
 
             match = re.search(r"id=(\d+)", full_desc)
             output = f"Image_Id{match.group(1)}_Num{i}.png"
