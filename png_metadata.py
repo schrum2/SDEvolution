@@ -1,5 +1,4 @@
 from PIL import Image
-import piexif
 import argparse
 
 def get_png_metadata(image_path):
