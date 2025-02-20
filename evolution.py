@@ -126,6 +126,7 @@ class SDEvolver(Evolver):
         self.pipe = StableDiffusionPipeline.from_pretrained(
             SD_MODEL,
             torch_dtype=torch.float16,
+            custom_pipeline="lpw_stable_diffusion", # Allows token weighting, as in "A (white:1.5) cat"
             safety_checker = None,
             requires_safety_checker = False
         )
